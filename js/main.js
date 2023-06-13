@@ -52,12 +52,16 @@ form.addEventListener("submit", (e) => {
 
     atualizaElemento(itemAtual);
 
-    items[existe.id] = itemAtual;
+    items[items.findIndex((elemento) => elemento.id === existe.id)] = itemAtual;
     //sobrescrevendo pelo id do objeto, por ser um conteúdo de texto, um array, tratar assm
   } else {
     //seu item será o tamanho do array, ou seja, se tiver 2 items, o id vai ser 2
-    itemAtual.id = items.length;
-
+    itemAtual.id = items[items.length - 1] ? items[items.lenght - 1].id + 1 : 0;
+    //uso do operador ternário
+    //if ?
+    //else :
+    //olhar no ultimo array, se existir, adicionar +1 e pegamos ele para ser do atual, sempre incrementando
+    //caso não exista nada no array, o id vai ser 0
     criarElemento(itemAtual);
 
     items.push(itemAtual);
@@ -101,6 +105,7 @@ function criarElemento(item) {
   //adicionamos o valor do nome para dentro do texto html
   novoItem.innerHTML += item.nome;
 
+  novoItem.appendChild(botaoDeleta(item.id));
   //inserimos o conteúdo para dentro do html no formato de objeto
   lista.appendChild(novoItem);
 
@@ -111,6 +116,36 @@ function criarElemento(item) {
 function atualizaElemento(item) {
   document.querySelector("[data-id='" + item.id + "']").innerHTML =
     item.quantidade;
+}
+
+function botaoDeleta(id) {
+  const botao = document.createElement("button");
+  botao.innerText = "X";
+
+  botao.addEventListener("click", function () {
+    deletaElemento(this.parentNode, id);
+    //parentNode pq o botão é filho da div
+
+    //não pode ser arrow function, pq com uma function normal é possível acessar o this
+    //com o this ele recebe o botão clicado
+  });
+
+  return botao;
+
+  //elementos html criados via js, principalmente botões, não recebem o add event listener ao ser criado
+  //como é feito com o form, logo ele tem que ser criado com o evento associado
+}
+
+function deletaElemento(tag, id) {
+  tag.remove();
+
+  items.splice(
+    items.findIndex((elemento) => elemento.id === id), //verificar se o id é o mesmo
+    1 //quantidade para deletar
+  );
+  //como sempre atualizamos o array item, devemos sobrescrever e enviar
+
+  localStorage.setItem("items", JSON.stringify(items));
 }
 
 //para inserir no localStorage criamos um objeto dentro da função, isso deveria receber os dados prontos
